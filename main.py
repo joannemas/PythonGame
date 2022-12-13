@@ -68,6 +68,7 @@ def game():
         snake_coordinates[1] += snake_direction[1]
 
         screen.fill(black)
+        pygame.draw.rect(screen, cyan, [food[0], food[1], tile_size, tile_size])
         snake_lead = [snake_coordinates[0], snake_coordinates[1]]
         snake_body.append(snake_lead)
         if len(snake_body) > snake_length:
@@ -79,7 +80,13 @@ def game():
 
         snake(tile_size, snake_body)
 
+
         pygame.display.update()
+
+        if snake_coordinates[0] == food[0] and snake_coordinates[1] == food[1]:
+            food[0] = round(random.randrange(0, screen_width - tile_size) / tile_size) * tile_size
+            food[1] = round(random.randrange(0, screen_height - tile_size) / tile_size) * tile_size
+            snake_length += 1
 
         clock.tick(snake_speed)
 
