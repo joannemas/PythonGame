@@ -19,6 +19,11 @@ snake_speed = 10
 font_style = pygame.font.SysFont("Arial", 20)
 
 
+def bonus(score):
+    value = font_style.render(f"Score : {str(score)}", True, yellow)
+    screen.blit(value, [0, 0])
+
+
 def snake(tile_size, snake_body):
     for x in snake_body:
         pygame.draw.rect(screen, pink, [x[0], x[1], tile_size, tile_size])
@@ -79,7 +84,7 @@ def game():
                 game_close = True
 
         snake(tile_size, snake_body)
-
+        bonus(snake_length - 1)
 
         pygame.display.update()
 
