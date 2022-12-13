@@ -41,6 +41,14 @@ def game():
     while game_over == False:
 
         while game_close == True:
+            screen.fill(pink)
+
+            def message(msg, color):
+                text = font_style.render(msg, True, color)
+                screen.blit(text, [screen_width / 3.5, screen_height / 2])
+            message("Perdu... Appuie sur A pour rejouer ou Q pour quitter", black)
+            
+            pygame.display.update()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
