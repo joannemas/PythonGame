@@ -48,8 +48,30 @@ class Snake:
             self.game_over()
 
     def game_over(self):
-        print("Game Over")
-        exit()
+        screen.fill(pink)
+        def message(msg, color):
+                text = font_style.render(msg, True, color)
+                screen.blit(text, [screen_width / 4, screen_height / 2])
+        message("Perdu... Appuie sur A pour rejouer ou Q pour quitter", black)
+            
+        pygame.display.update()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                        pygame.quit()
+                        quit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_a:
+                        self.x = 250
+                        self.y = 250
+                        self.body = []
+                        self.length = 1
+                        self.direction = [0, 0]
+                        return
+                    if event.key == pygame.K_q:
+                        pygame.quit()
+                        quit()
 
     def eat(self, food):
         if self.x == food.x and self.y == food.y:
