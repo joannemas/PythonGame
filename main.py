@@ -1,7 +1,7 @@
 import pygame
 import random
+from random import randrange
 
-pygame.init()
 
 white = (255, 255, 255)
 black = (0, 0, 0)
@@ -16,95 +16,92 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
 snake_speed = 10
 
-font_style = pygame.font.SysFont("Arial", 20)
 
+class Snake:
+    def __init__(self, x, y, size):
+        self.x = x
+        self.y = y
+        self.size = size
+        self.body = []
+        self.length = 1
+        self.direction = [0, 0]
 
-def bonus(score):
-    value = font_style.render(f"Score : {str(score)}", True, yellow)
-    screen.blit(value, [0, 0])
+    def draw(self):
+        for x in self.body:
+            pygame.draw.rect(screen, pink, [x[0], x[1], self.size, self.size])
 
+    def move(self):
+        self.x += self.direction[0]
+        self.y += self.direction[1]
 
-def snake(tile_size, snake_body):
-    for x in snake_body:
-        pygame.draw.rect(screen, pink, [x[0], x[1], tile_size, tile_size])
+        self.body.append([self.x, self.y])
+        if len(self.body) > self.length:
+            del self.body[0]
 
+        for x in self.body[:-1]:
+            if x == [self.x, self.y]:
+                self.game_over()
 
-def game():
-    game_over = False
-    game_close = False
-    snake_coordinates = [screen_width / 2, screen_height / 2]
-    snake_direction = [0, 0]
-    snake_body = []
-    snake_length = 1
-    food = [round(random.randrange(0, screen_width - tile_size) / tile_size) * tile_size, round(random.randrange(0, screen_height - tile_size) / tile_size) * tile_size]
+        if self.x > screen_width - self.size or self.x < 0 or self.y > screen_height - self.size or self.y < 0:
+            self.game_over()
 
-    while game_over == False:
+    def game_over(self):
+        print("Game Over")
+        exit()
 
-        while game_close == True:
-            screen.fill(pink)
+    def eat(self, food):
+        if self.x == food.x and self.y == food.y:
+            food.x = round(random.randrange(0, screen_width - self.size) / self.size) * self.size
+            food.y = round(random.randrange(0, screen_height - self.size) / self.size) * self.size
+            self.length += 1
 
-            def message(msg, color):
-                text = font_style.render(msg, True, color)
-                screen.blit(text, [screen_width / 3.5, screen_height / 2])
-            message("Perdu... Appuie sur A pour rejouer ou Q pour quitter", black)
+class Food:
+    def __init__(self, x, y, size):
+        self.x = x
+        self.y = y
+        self.size = size
+
+    def draw(self):
+        pygame.draw.rect(screen, cyan, [self.x, self.y, self.size, self.size])
+
+class Game:
+    def __init__(self, width, height, size):
+        self.width = width
+        self.height = height
+        self.size = size
+        self.snake = Snake(self.width / 2, self.height / 2, self.size)
+        self.food = Food(round(random.randrange(0, self.width - self.size) / self.size) * self.size, round(random.randrange(0, self.height - self.size) / self.size) * self.size, self.size)
+
+    def draw(self):
+        screen.fill(black)
+        self.snake.draw()
+        self.food.draw()
+
+    def update(self):
+        self.snake.move()
+        self.snake.eat(self.food)
+
+    def run(self):
+        while True:
             
-            pygame.display.update()
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    game_over = True
-                    game_close = False
+                    exit()
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        game_over = True
-                        game_close = False
-                    if event.key == pygame.K_a:
-                        game()
+                    if event.key == pygame.K_LEFT:
+                        self.snake.direction = [-self.size, 0]
+                    elif event.key == pygame.K_RIGHT:
+                        self.snake.direction = [self.size, 0]
+                    elif event.key == pygame.K_UP:
+                        self.snake.direction = [0, -self.size]
+                    elif event.key == pygame.K_DOWN:
+                        self.snake.direction = [0, self.size]
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                game_over = True
-                exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    snake_direction = [-tile_size, 0]
-                elif event.key == pygame.K_RIGHT:
-                    snake_direction = [tile_size, 0]
-                elif event.key == pygame.K_UP:
-                    snake_direction = [0, -tile_size]
-                elif event.key == pygame.K_DOWN:
-                    snake_direction = [0, tile_size]
+            self.draw()
+            self.update()
+            pygame.display.update()
+            clock.tick(snake_speed)
 
-        if snake_coordinates[0] >= screen_width or snake_coordinates[0] < 0 or snake_coordinates[1] >= screen_height or snake_coordinates[1] < 0:
-            game_close = True
-        snake_coordinates[0] += snake_direction[0]
-        snake_coordinates[1] += snake_direction[1]
-
-        screen.fill(black)
-        pygame.draw.rect(screen, cyan, [food[0], food[1], tile_size, tile_size])
-        snake_lead = [snake_coordinates[0], snake_coordinates[1]]
-        snake_body.append(snake_lead)
-        if len(snake_body) > snake_length:
-            del snake_body[0]
-
-        for x in snake_body[:-1]:
-            if x == snake_lead:
-                game_close = True
-
-        snake(tile_size, snake_body)
-        bonus(snake_length - 1)
-
-        pygame.display.update()
-
-        if snake_coordinates[0] == food[0] and snake_coordinates[1] == food[1]:
-            food[0] = round(random.randrange(0, screen_width - tile_size) / tile_size) * tile_size
-            food[1] = round(random.randrange(0, screen_height - tile_size) / tile_size) * tile_size
-            snake_length += 1
-
-        clock.tick(snake_speed)
-
-    pygame.quit()
-    quit()
-
-
-game()
+if __name__ == "__main__":
+    game = Game(screen_width, screen_height, tile_size)
+    game.run()
