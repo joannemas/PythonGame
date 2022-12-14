@@ -47,6 +47,9 @@ class Snake:
         if self.x > screen_width - self.size or self.x < 0 or self.y > screen_height - self.size or self.y < 0:
             self.game_over()
 
+        if Score(self.length - 1).score < 0:
+            self.game_over()
+
     def game_over(self):
         screen.fill(pink)
         def message(msg, color):
@@ -79,6 +82,12 @@ class Snake:
             food.y = round(random.randrange(0, screen_height - self.size) / self.size) * self.size
             self.length += 1
 
+    def obstacle(self, obstacle):
+        if self.x == obstacle.x and self.y == obstacle.y:
+            obstacle.x = round(random.randrange(0, screen_width - self.size) / self.size) * self.size
+            obstacle.y = round(random.randrange(0, screen_height - self.size) / self.size) * self.size
+            self.length -= 2
+
 class Food:
     def __init__(self, x, y, size):
         self.x = x
@@ -87,6 +96,15 @@ class Food:
 
     def draw(self):
         pygame.draw.rect(screen, cyan, [self.x, self.y, self.size, self.size])
+
+class Obstacle:
+    def __init__(self, x, y, size):
+        self.x = x
+        self.y = y
+        self.size = size
+
+    def draw(self):
+        pygame.draw.rect(screen, 'red', [self.x, self.y, self.size, self.size])
 
 class Score:
     def __init__(self, score):
@@ -103,6 +121,7 @@ class Game:
         self.size = size
         self.snake = Snake(self.width / 2, self.height / 2, self.size)
         self.food = Food(round(random.randrange(0, self.width - self.size) / self.size) * self.size, round(random.randrange(0, self.height - self.size) / self.size) * self.size, self.size)
+        self.obstacle = Obstacle(round(random.randrange(0, self.width - self.size) / self.size) * self.size, round(random.randrange(0, self.height - self.size) / self.size) * self.size, self.size)
 
     def draw(self):
         screen.fill(black)
@@ -110,10 +129,13 @@ class Game:
         self.food.draw()
         self.score = Score(self.snake.length - 1)
         self.score.draw()
+        if self.score.score > 4:
+            self.obstacle.draw()
 
     def update(self):
         self.snake.move()
         self.snake.eat(self.food)
+        self.snake.obstacle(self.obstacle)
 
     def run(self):
         while True:
