@@ -2,6 +2,7 @@ import pygame
 import random
 from random import randrange
 
+pygame.init()
 
 white = (255, 255, 255)
 black = (0, 0, 0)
@@ -15,6 +16,7 @@ tile_size = 25
 screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
 snake_speed = 10
+font_style = pygame.font.SysFont("arial", 25)
 
 
 class Snake:
@@ -64,6 +66,14 @@ class Food:
     def draw(self):
         pygame.draw.rect(screen, cyan, [self.x, self.y, self.size, self.size])
 
+class Score:
+    def __init__(self, score):
+        self.score = score
+
+    def draw(self):
+        value = font_style.render(f"Score : {str(self.score)}", True, yellow)
+        screen.blit(value, [0, 0])
+
 class Game:
     def __init__(self, width, height, size):
         self.width = width
@@ -76,6 +86,8 @@ class Game:
         screen.fill(black)
         self.snake.draw()
         self.food.draw()
+        self.score = Score(self.snake.length - 1)
+        self.score.draw()
 
     def update(self):
         self.snake.move()
